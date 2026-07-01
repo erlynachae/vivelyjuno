@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vively — Voucher Studio for Juno Hair</title>
+<style>
+  :root{
+    --bg:#F5F5F7;
+    --surface:#FFFFFF;
+    --surface-alt:#FBFBFD;
+    --ink:#1D1D1F;
+    --ink-soft:#6E6E73;
+    --ink-faint:#AEAEB2;
+    --line:#D2D2D7;
+    --line-soft:#E8E8ED;
+    --black:#000000;
+    --white:#FFFFFF;
+    --radius-lg:22px;
+    --radius-md:16px;
+    --radius-sm:11px;
+    --shadow:0 20px 40px -20px rgba(0,0,0,0.22);
+    --shadow-sm:0 6px 18px -10px rgba(0,0,0,0.14);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    letter-spacing:-0.01em;
+  }
+  ::selection{ background:var(--ink); color:var(--white); }
+
+  .mono{ font-family:ui-monospace, "SF Mono", "Menlo", "Consolas", monospace; }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background:rgba(255,255,255,0.8);
+    backdrop-filter:saturate(180%) blur(20px);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .topbar-inner{
+    max-width:1140px; margin:0 auto; padding:16px 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:20px;
+    flex-wrap:wrap;
+  }
+  .wordmark{ display:flex; align-items:baseline; gap:9px; }
+  .wordmark .name{ font-size:19px; font-weight:700; letter-spacing:-0.02em; color:var(--ink); }
+  .wordmark .x{ color:var(--ink-faint); font-weight:400; font-size:14px; }
+  .wordmark .client{ font-size:14px; font-weight:600; color:var(--ink-soft); }
+
+  .mode-label{
+    font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-faint);
+    margin-right:8px; align-self:center; font-weight:600; display:none;
+  }
+  .switcher{
+    display:flex; gap:2px; background:var(--line-soft);
+    padding:3px; border-radius:980px;
+  }
+  .switcher button{
+    border:none; background:transparent; padding:8px 16px; border-radius:980px;
+    font-size:13px; font-weight:600; color:var(--ink-soft); cursor:pointer;
+    transition:background .25s ease, color .25s ease, box-shadow .25s ease;
+    white-space:nowrap; letter-spacing:-0.01em;
+  }
+  .switcher button.active{
+    background:var(--white); color:var(--ink); box-shadow:var(--shadow-sm);
+  }
+  .switcher button:not(.active):hover{ color:var(--ink); }
+
+  /* ---------- Layout ---------- */
+  main{ max-width:1140px; margin:0 auto; padding:40px 24px 90px; }
+  .view{ display:none; animation:fade .35s ease; }
+  .view.active{ display:block; }
+  @keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  .eyebrow{ font-size:12px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-faint); font-weight:600; margin:0 0 10px; }
+  .view h2{ font-size:34px; font-weight:700; margin:0 0 8px; letter-spacing:-0.03em; }
+  .view .lede{ color:var(--ink-soft); font-size:16px; margin:0 0 36px; max-width:560px; line-height:1.5; font-weight:400; }
+
+  .view-header{ display:flex; justify-content:space-between; align-items:flex-start; gap:20px; flex-wrap:wrap; margin-bottom:36px; }
+  .view-header .lede{ margin:0; }
+  .export-btn{ display:inline-flex; align-items:center; gap:8px; flex-shrink:0; white-space:nowrap; }
+  .export-btn svg{ width:15px; height:15px; }
+
+  .card{
+    background:var(--surface); border:1px solid var(--line-soft); border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-sm);
+  }
+
+  /* ---------- Customer view ---------- */
+  .customer-grid{ display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start; }
+  .form-card{ padding:34px; }
+  .field{ margin-bottom:20px; }
+  .field label{ display:block; font-size:13px; font-weight:600; color:var(--ink); margin-bottom:8px; letter-spacing:-0.01em; }
+  .field input{
+    width:100%; padding:13px 15px; border-radius:var(--radius-sm); border:1px solid var(--line);
+    background:var(--surface-alt); font-size:15px; color:var(--ink); transition:border-color .2s, box-shadow .2s, background .2s;
+  }
+  .field input:focus{ outline:none; border-color:var(--ink); box-shadow:0 0 0 4px rgba(0,0,0,0.06); background:var(--white); }
+  .field .hint{ font-size:12.5px; color:var(--ink-faint); margin-top:7px; line-height:1.4; }
+
+  .btn{
+    appearance:none; border:none; cursor:pointer; border-radius:980px;
+    padding:14px 22px; font-size:15px; font-weight:600; letter-spacing:-0.01em;
+    transition:transform .15s ease, opacity .15s ease, background .2s ease;
+  }
+  .btn:active{ transform:scale(0.98); }
+  .btn-primary{ background:var(--ink); color:var(--white); width:100%; }
+  .btn-primary:hover{ opacity:0.85; }
+  .btn-ghost{ background:var(--line-soft); color:var(--ink); }
+  .btn-ghost:hover{ background:var(--line); }
+  .btn-sm{ padding:0 18px; font-size:13.5px; border-radius:var(--radius-sm); }
+
+  .voucher-slot{ min-height:380px; display:flex; align-items:center; justify-content:center; }
+  .voucher-placeholder{
+    text-align:center; color:var(--ink-faint); padding:44px 32px; border:1.5px dashed var(--line);
+    border-radius:var(--radius-lg); width:100%; background:var(--surface-alt);
+  }
+  .voucher-placeholder .glyph{
+    width:44px; height:44px; margin:0 auto 16px; border-radius:50%; background:var(--ink);
+    color:var(--white); display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-weight:700; letter-spacing:-0.02em;
+  }
+  .voucher-placeholder p{ font-size:14px; line-height:1.6; margin:0; }
+
+  /* ---------- Voucher ticket (signature element) ---------- */
+  .ticket{
+    width:100%; display:flex; border-radius:var(--radius-lg); overflow:hidden;
+    box-shadow:var(--shadow);
+    animation:pop .5s cubic-bezier(.2,.9,.3,1.2);
+  }
+  @keyframes pop{ from{ opacity:0; transform:scale(.94) translateY(8px);} to{opacity:1; transform:scale(1) translateY(0);} }
+  .ticket-body{
+    flex:1; background:var(--black); color:var(--white); padding:28px 26px; position:relative;
+  }
+  .ticket-body .off{
+    position:absolute; top:22px; right:24px; font-size:12.5px; font-weight:700; letter-spacing:0.02em;
+    color:var(--black); background:var(--white);
+    padding:6px 13px; border-radius:980px;
+  }
+  .ticket-body .label{ font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:6px; font-weight:600; }
+  .ticket-body .cust-name{ font-size:25px; margin:0 0 20px; font-weight:700; letter-spacing:-0.02em; }
+  .ticket-row{ display:flex; justify-content:space-between; margin-bottom:12px; font-size:13.5px; }
+  .ticket-row span:last-child{ color:var(--white); font-weight:600; }
+  .ticket-row span:first-child{ color:rgba(255,255,255,0.5); }
+  .ticket-note{ margin-top:20px; padding-top:18px; border-top:1px dashed rgba(255,255,255,0.22); font-size:12.5px; color:rgba(255,255,255,0.75); line-height:1.55; }
+
+  .ticket-stub{
+    width:124px; background:var(--white); position:relative; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; padding:16px 8px; border-left:2px dashed var(--line);
+  }
+  .ticket-stub::before, .ticket-stub::after{
+    content:''; position:absolute; left:-11px; width:22px; height:22px; background:var(--bg);
+    border-radius:50%; border:1px solid var(--line-soft);
+  }
+  .ticket-stub::before{ top:-11px; }
+  .ticket-stub::after{ bottom:-11px; }
+  .ticket-stub .pct{ font-size:27px; font-weight:800; color:var(--ink); line-height:1; letter-spacing:-0.02em; }
+  .ticket-stub .pct-sub{ font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-faint); margin-top:5px; text-align:center; font-weight:600; }
+  .ticket-stub .vid{
+    margin-top:16px; font-size:12.5px; font-weight:600; color:var(--ink-soft);
+    writing-mode:vertical-rl; letter-spacing:0.02em;
+  }
+
+  /* ---------- Salon / Agency shared ---------- */
+  .metrics{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:32px; }
+  .metric-card{ padding:24px 22px; }
+  .metric-card .m-label{ font-size:12px; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-faint); font-weight:600; margin-bottom:12px; }
+  .metric-card .m-value{ font-size:32px; font-weight:700; color:var(--ink); letter-spacing:-0.03em; }
+
+  .toolbar{ display:flex; gap:12px; align-items:center; margin-bottom:18px; flex-wrap:wrap; }
+  .search-input{
+    flex:1; min-width:220px; padding:12px 16px; border-radius:var(--radius-sm); border:1px solid var(--line);
+    background:var(--surface); font-size:14.5px;
+  }
+  .search-input:focus{ outline:none; border-color:var(--ink); box-shadow:0 0 0 4px rgba(0,0,0,0.06); }
+
+  .redeem-card{ padding:26px; margin-bottom:28px; }
+  .redeem-card h3{ margin:0 0 4px; font-size:18px; font-weight:700; letter-spacing:-0.02em; }
+  .redeem-card .sub{ font-size:13.5px; color:var(--ink-soft); margin:0 0 20px; }
+  .redeem-grid{ display:grid; grid-template-columns:1.4fr 1fr auto; gap:14px; align-items:end; }
+  .redeem-grid .field{ margin-bottom:0; }
+  .redeem-grid .btn{ height:47px; }
+  .msg{ margin-top:14px; font-size:13.5px; font-weight:600; padding:11px 15px; border-radius:var(--radius-sm); display:none; }
+  .msg.show{ display:block; }
+  .msg.ok{ background:var(--ink); color:var(--white); }
+  .msg.err{ background:var(--surface-alt); color:var(--ink); border:1px solid var(--line); }
+
+  .table-wrap{ overflow-x:auto; border-radius:var(--radius-lg); border:1px solid var(--line-soft); background:var(--surface); }
+  table{ width:100%; border-collapse:collapse; font-size:13.5px; min-width:640px; }
+  thead th{
+    text-align:left; padding:15px 20px; font-size:11px; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--ink-faint); font-weight:700; background:var(--surface-alt); border-bottom:1px solid var(--line-soft);
+    white-space:nowrap;
+  }
+  tbody td{ padding:15px 20px; border-bottom:1px solid var(--line-soft); color:var(--ink); white-space:nowrap; }
+  tbody tr:last-child td{ border-bottom:none; }
+  tbody tr:hover{ background:var(--surface-alt); }
+  .id-mono{ font-family:ui-monospace, "SF Mono", "Menlo", "Consolas", monospace; font-weight:600; font-size:12.5px; color:var(--ink); }
+
+  .badge{ display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:980px; font-size:11.5px; font-weight:700; letter-spacing:0.01em; }
+  .badge.pending{ background:var(--surface-alt); color:var(--ink-soft); border:1px solid var(--line); }
+  .badge.redeemed{ background:var(--ink); color:var(--white); }
+  .badge.pending::before{ content:''; width:6px; height:6px; border-radius:50%; background:var(--ink-faint); }
+  .badge.redeemed::before{ content:''; width:6px; height:6px; border-radius:50%; background:var(--white); }
+
+  .empty-row td{ text-align:center; color:var(--ink-faint); padding:40px; font-style:normal; }
+
+  /* ---------- Monthly settlement ---------- */
+  .section-header{ margin:44px 0 18px; }
+  .section-header h3{ margin:0 0 6px; font-size:20px; font-weight:700; letter-spacing:-0.02em; }
+  .section-header .sub{ font-size:13.5px; color:var(--ink-soft); margin:0; max-width:520px; line-height:1.5; }
+
+  .settle-btn, .reopen-btn{
+    appearance:none; cursor:pointer; border-radius:980px; font-weight:600; letter-spacing:-0.01em;
+    padding:7px 14px; font-size:12.5px; transition:opacity .15s ease, background .2s ease;
+  }
+  .settle-btn{ background:var(--ink); color:var(--white); border:none; }
+  .settle-btn:hover{ opacity:0.85; }
+  .reopen-btn{ background:transparent; color:var(--ink-faint); border:1px solid var(--line); }
+  .reopen-btn:hover{ color:var(--ink-soft); border-color:var(--ink-faint); }
+  .settled-note{ font-size:12px; color:var(--ink-faint); }
+  .settled-note strong{ color:var(--ink-soft); font-weight:600; }
+  .action-cell{ display:flex; align-items:center; gap:10px; }
+
+  footer{ text-align:center; padding:32px 24px; font-size:12.5px; color:var(--ink-faint); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:860px){
+    .customer-grid{ grid-template-columns:1fr; }
+    .metrics{ grid-template-columns:1fr 1fr; }
+    .redeem-grid{ grid-template-columns:1fr; }
+  }
+  @media (max-width:560px){
+    .metrics{ grid-template-columns:1fr; }
+    .topbar-inner{ flex-direction:column; align-items:flex-start; }
+    .switcher{ width:100%; overflow-x:auto; }
+    .ticket{ flex-direction:column; }
+    .ticket-stub{ width:100%; flex-direction:row; border-left:none; border-top:2px dashed var(--line); gap:12px; padding:12px; }
+    .ticket-stub::before, .ticket-stub::after{ left:auto; top:-11px; }
+    .ticket-stub::before{ left:-11px; }
+    .ticket-stub::after{ right:-11px; left:auto; }
+    .ticket-stub .vid{ writing-mode:horizontal-tb; margin-top:0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="wordmark">
+      <span class="name">Vively</span>
+      <span class="x">×</span>
+      <span class="client">Juno Hair</span>
+    </div>
+    <div style="display:flex; align-items:center;">
+      <span class="mode-label">Demo Modes:</span>
+      <div class="switcher">
+        <button data-view="customer" class="active">Customer View</button>
+        <button data-view="salon">Salon Dashboard</button>
+        <button data-view="agency">Agency Admin</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ============ CUSTOMER VIEW ============ -->
+  <section class="view active" id="view-customer">
+    <p class="eyebrow">Claim your offer</p>
+    <h2>Get 20% off at Juno Hair</h2>
+    <p class="lede">Fill in your details below and we'll generate a unique digital voucher. Show it at the salon to redeem your discount.</p>
+
+    <div class="customer-grid">
+      <div class="card form-card">
+        <form id="claimForm">
+          <div class="field">
+            <label for="custName">Full name</label>
+            <input type="text" id="custName" placeholder="e.g. Amara Chen" required>
+          </div>
+          <div class="field">
+            <label for="custPhone">Phone number</label>
+            <input type="tel" id="custPhone" placeholder="e.g. 010-1234-5678" required>
+          </div>
+          <div class="field">
+            <label for="custDate">Preferred appointment date</label>
+            <input type="date" id="custDate" required>
+            <div class="hint">We'll hold your discount for this date — vouchers are still valid if plans shift.</div>
+          </div>
+          <button type="submit" class="btn btn-primary">Claim 20% Discount Voucher</button>
+        </form>
+      </div>
+
+      <div class="voucher-slot" id="voucherSlot">
+        <div class="voucher-placeholder">
+          <div class="glyph">JN</div>
+          <p>Your digital voucher will appear here<br>the moment you submit the form.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SALON VIEW ============ -->
+  <section class="view" id="view-salon">
+    <p class="eyebrow">Juno Hair front desk</p>
+    <h2>Salon Dashboard</h2>
+    <p class="lede">Look up any customer's voucher and complete their transaction at checkout.</p>
+
+    <div class="card redeem-card">
+      <h3>Redeem a voucher</h3>
+      <p class="sub">Enter or select a Voucher ID, then the final amount the customer paid.</p>
+      <div class="redeem-grid">
+        <div class="field">
+          <label for="redeemId">Voucher ID</label>
+          <input type="text" id="redeemId" list="pendingIds" placeholder="e.g. JN-482913" autocomplete="off">
+          <datalist id="pendingIds"></datalist>
+        </div>
+        <div class="field">
+          <label for="redeemAmount">Final amount paid ($)</label>
+          <input type="number" id="redeemAmount" placeholder="e.g. 84.00" min="0" step="0.01">
+        </div>
+        <button class="btn btn-primary btn-sm" id="completeBtn">Complete Transaction</button>
+      </div>
+      <div class="msg" id="redeemMsg"></div>
+    </div>
+
+    <div class="toolbar">
+      <input type="text" class="search-input" id="salonSearch" placeholder="Search by name, phone, or voucher ID…">
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Customer</th><th>Phone</th><th>Voucher ID</th><th>Status</th><th>Date</th></tr>
+        </thead>
+        <tbody id="salonTableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ AGENCY VIEW ============ -->
+  <section class="view" id="view-agency">
+    <div class="view-header">
+      <div>
+        <p class="eyebrow">Vively admin analytics</p>
+        <h2>Agency Admin</h2>
+        <p class="lede">Track voucher performance and commission earned across every Juno Hair transaction.</p>
+      </div>
+      <button class="btn btn-ghost export-btn" id="exportBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="M7 10l5 5 5-5"></path><path d="M4 19h16"></path></svg>
+        Export to Excel
+      </button>
+    </div>
+
+    <div class="metrics">
+      <div class="card metric-card">
+        <div class="m-label">Vouchers issued</div>
+        <div class="m-value" id="mIssued">0</div>
+      </div>
+      <div class="card metric-card">
+        <div class="m-label">Vouchers redeemed</div>
+        <div class="m-value" id="mRedeemed">0</div>
+      </div>
+      <div class="card metric-card">
+        <div class="m-label">Total salon revenue</div>
+        <div class="m-value" id="mRevenue">$0</div>
+      </div>
+      <div class="card metric-card">
+        <div class="m-label">Agency commission earned</div>
+        <div class="m-value" id="mCommission">$0</div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Date</th><th>Customer</th><th>Voucher ID</th><th>Status</th><th>Amount Paid</th><th>Commission ($)</th></tr>
+        </thead>
+        <tbody id="agencyTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="section-header">
+      <h3>Monthly Settlement (정산)</h3>
+      <p class="sub">Commission owed to Vively, grouped by month redeemed. Mark a month as settled once it's been paid out to close the books.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Month</th><th>Transactions</th><th>Revenue</th><th>Commission Owed</th><th>Status</th><th>Action</th></tr>
+        </thead>
+        <tbody id="settlementTableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer>Vively Voucher &amp; Commission Studio, built for Juno Hair — demo data stored locally in your browser.</footer>
+
+<script>
+(function(){
+  "use strict";
+  const STORAGE_KEY = "junoHairVouchers";
+  const SETTLEMENTS_KEY = "junoHairSettlements";
+  const COMMISSION_RATE = 0.20;
+
+  /* ---------------- Data layer ---------------- */
+  function loadData(){
+    let raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw){
+      const seeded = seedData();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
+      return seeded;
+    }
+    try{ return JSON.parse(raw); } catch(e){ const seeded = seedData(); localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded)); return seeded; }
+  }
+  function saveData(data){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+
+  function seedData(){
+    const today = new Date();
+    const iso = (offsetDays) => {
+      const d = new Date(today); d.setDate(d.getDate() + offsetDays);
+      return d.toISOString().slice(0,10);
+    };
+    return [
+      { id:"JN-482913", name:"Amara Chen", phone:"010-2231-8842", date:iso(3), status:"Pending", amountPaid:null, commission:null, dateIssued:iso(-4), dateRedeemed:null },
+      { id:"JN-661027", name:"Liam Osei", phone:"010-7745-1129", date:iso(-2), status:"Redeemed", amountPaid:96.00, commission:19.20, dateIssued:iso(-9), dateRedeemed:iso(-2) },
+      { id:"JN-337750", name:"Ha-eun Park", phone:"010-3390-6674", date:iso(6), status:"Pending", amountPaid:null, commission:null, dateIssued:iso(-1), dateRedeemed:null },
+      { id:"JN-904215", name:"Sofia Marchetti", phone:"010-5528-0093", date:iso(-6), status:"Redeemed", amountPaid:142.50, commission:28.50, dateIssued:iso(-12), dateRedeemed:iso(-6) },
+      { id:"JN-118864", name:"Daniel Okafor", phone:"010-6612-4470", date:iso(-1), status:"Redeemed", amountPaid:78.00, commission:15.60, dateIssued:iso(-8), dateRedeemed:iso(-1) },
+      { id:"JN-570332", name:"Yuna Kim", phone:"010-9981-3305", date:iso(10), status:"Pending", amountPaid:null, commission:null, dateIssued:iso(0), dateRedeemed:null }
+    ];
+  }
+
+  let vouchers = loadData();
+
+  /* ---------------- Settlement data layer ---------------- */
+  function loadSettlements(){
+    try{ return JSON.parse(localStorage.getItem(SETTLEMENTS_KEY)) || {}; }
+    catch(e){ return {}; }
+  }
+  function saveSettlements(data){ localStorage.setItem(SETTLEMENTS_KEY, JSON.stringify(data)); }
+  let settlements = loadSettlements();
+
+  /* ---------------- Helpers ---------------- */
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, s => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[s]));
+  }
+  function fmtDate(iso){
+    if(!iso) return "—";
+    const d = new Date(iso + "T00:00:00");
+    if(isNaN(d)) return iso;
+    return d.toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+  }
+  function fmtMoney(n){
+    if(n === null || n === undefined) return "—";
+    return "$" + Number(n).toFixed(2);
+  }
+  function genVoucherId(){
+    let id;
+    do{
+      const num = Math.floor(100000 + Math.random() * 900000);
+      id = "JN-" + num;
+    } while(vouchers.some(v => v.id === id));
+    return id;
+  }
+
+  /* ---------------- View switching ---------------- */
+  const switcher = document.querySelector('.switcher');
+  switcher.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-view]');
+    if(!btn) return;
+    switchView(btn.dataset.view);
+  });
+  function switchView(view){
+    document.querySelectorAll('.switcher button').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + view).classList.add('active');
+    if(view === 'salon') renderSalon();
+    if(view === 'agency') renderAgency();
+  }
+
+  /* ---------------- Customer view ---------------- */
+  const claimForm = document.getElementById('claimForm');
+  const voucherSlot = document.getElementById('voucherSlot');
+
+  claimForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    const name = document.getElementById('custName').value.trim();
+    const phone = document.getElementById('custPhone').value.trim();
+    const date = document.getElementById('custDate').value;
+    if(!name || !phone || !date) return;
+
+    const voucher = {
+      id: genVoucherId(),
+      name, phone, date,
+      status: "Pending",
+      amountPaid: null,
+      commission: null,
+      dateIssued: new Date().toISOString().slice(0,10),
+      dateRedeemed: null
+    };
+    vouchers.push(voucher);
+    saveData(vouchers);
+    renderVoucherCard(voucher);
+    claimForm.reset();
+  });
+
+  function renderVoucherCard(v){
+    voucherSlot.innerHTML = `
+      <div class="ticket">
+        <div class="ticket-body">
+          <span class="off">20% OFF</span>
+          <div class="label">Digital Voucher</div>
+          <p class="cust-name">${escapeHtml(v.name)}</p>
+          <div class="ticket-row"><span>Phone</span><span>${escapeHtml(v.phone)}</span></div>
+          <div class="ticket-row"><span>Preferred date</span><span>${fmtDate(v.date)}</span></div>
+          <div class="ticket-row"><span>Issued</span><span>${fmtDate(v.dateIssued)}</span></div>
+          <div class="ticket-note">Show this voucher at Juno Hair for 20% off your service. Present the ID at checkout.</div>
+        </div>
+        <div class="ticket-stub">
+          <div class="pct">20%</div>
+          <div class="pct-sub">off</div>
+          <div class="vid mono">${v.id}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  /* ---------------- Salon view ---------------- */
+  const salonSearch = document.getElementById('salonSearch');
+  const salonTableBody = document.getElementById('salonTableBody');
+  const redeemId = document.getElementById('redeemId');
+  const redeemAmount = document.getElementById('redeemAmount');
+  const completeBtn = document.getElementById('completeBtn');
+  const redeemMsg = document.getElementById('redeemMsg');
+  const pendingIdsList = document.getElementById('pendingIds');
+
+  salonSearch.addEventListener('input', () => renderSalon());
+
+  function renderSalon(){
+    const term = salonSearch.value.trim().toLowerCase();
+    const rows = [...vouchers]
+      .sort((a,b) => (b.dateIssued || '').localeCompare(a.dateIssued || ''))
+      .filter(v => !term ||
+        v.name.toLowerCase().includes(term) ||
+        v.phone.toLowerCase().includes(term) ||
+        v.id.toLowerCase().includes(term)
+      );
+
+    salonTableBody.innerHTML = rows.length ? rows.map(v => `
+      <tr>
+        <td>${escapeHtml(v.name)}</td>
+        <td>${escapeHtml(v.phone)}</td>
+        <td class="id-mono">${v.id}</td>
+        <td><span class="badge ${v.status === 'Redeemed' ? 'redeemed' : 'pending'}">${v.status}</span></td>
+        <td>${fmtDate(v.date)}</td>
+      </tr>
+    `).join('') : `<tr class="empty-row"><td colspan="5">No vouchers match your search.</td></tr>`;
+
+    pendingIdsList.innerHTML = vouchers
+      .filter(v => v.status === 'Pending')
+      .map(v => `<option value="${v.id}">${escapeHtml(v.name)}</option>`)
+      .join('');
+  }
+
+  completeBtn.addEventListener('click', () => {
+    const id = redeemId.value.trim().toUpperCase();
+    const amount = parseFloat(redeemAmount.value);
+    hideMsg();
+
+    if(!id){ showMsg('err', 'Enter or select a voucher ID.'); return; }
+    const voucher = vouchers.find(v => v.id === id);
+    if(!voucher){ showMsg('err', `No voucher found with ID ${id}.`); return; }
+    if(voucher.status === 'Redeemed'){ showMsg('err', `Voucher ${id} has already been redeemed.`); return; }
+    if(isNaN(amount) || amount <= 0){ showMsg('err', 'Enter a valid final amount paid.'); return; }
+
+    voucher.status = 'Redeemed';
+    voucher.amountPaid = Math.round(amount * 100) / 100;
+    voucher.commission = Math.round(amount * COMMISSION_RATE * 100) / 100;
+    voucher.dateRedeemed = new Date().toISOString().slice(0,10);
+    saveData(vouchers);
+
+    showMsg('ok', `Transaction complete — ${voucher.name}'s voucher (${id}) redeemed for ${fmtMoney(voucher.amountPaid)}.`);
+    redeemId.value = '';
+    redeemAmount.value = '';
+    renderSalon();
+  });
+
+  function showMsg(type, text){
+    redeemMsg.textContent = text;
+    redeemMsg.className = 'msg show ' + type;
+  }
+  function hideMsg(){ redeemMsg.className = 'msg'; }
+
+  /* ---------------- Agency view ---------------- */
+  const agencyTableBody = document.getElementById('agencyTableBody');
+  const settlementTableBody = document.getElementById('settlementTableBody');
+
+  function monthKeyOf(dateStr){ return dateStr.slice(0,7); } // "YYYY-MM"
+  function monthLabel(key){
+    const [y, m] = key.split('-').map(Number);
+    return new Date(y, m - 1, 1).toLocaleDateString(undefined, { month:'long', year:'numeric' });
+  }
+
+  function computeMonthlyGroups(){
+    const groups = {};
+    vouchers
+      .filter(v => v.status === 'Redeemed' && v.dateRedeemed)
+      .forEach(v => {
+        const key = monthKeyOf(v.dateRedeemed);
+        if(!groups[key]) groups[key] = { count:0, revenue:0, commission:0 };
+        groups[key].count += 1;
+        groups[key].revenue += v.amountPaid || 0;
+        groups[key].commission += v.commission || 0;
+      });
+    return groups;
+  }
+
+  function renderSettlements(){
+    const groups = computeMonthlyGroups();
+    const keys = Object.keys(groups).sort((a, b) => b.localeCompare(a));
+
+    settlementTableBody.innerHTML = keys.length ? keys.map(key => {
+      const g = groups[key];
+      const state = settlements[key];
+      const isSettled = state && state.status === 'Settled';
+      const actionCell = isSettled
+        ? `<div class="action-cell">
+             <span class="settled-note">Settled on <strong>${fmtDate(state.settledDate)}</strong></span>
+             <button class="reopen-btn" data-month="${key}" data-action="reopen">Reopen</button>
+           </div>`
+        : `<button class="settle-btn" data-month="${key}" data-action="settle">Mark as Settled</button>`;
+
+      return `
+        <tr>
+          <td>${monthLabel(key)}</td>
+          <td>${g.count}</td>
+          <td>${fmtMoney(g.revenue)}</td>
+          <td>${fmtMoney(g.commission)}</td>
+          <td><span class="badge ${isSettled ? 'redeemed' : 'pending'}">${isSettled ? 'Settled' : 'Pending'}</span></td>
+          <td>${actionCell}</td>
+        </tr>
+      `;
+    }).join('') : `<tr class="empty-row"><td colspan="6">No redeemed transactions yet to settle.</td></tr>`;
+  }
+
+  settlementTableBody.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-month]');
+    if(!btn) return;
+    const key = btn.dataset.month;
+    if(btn.dataset.action === 'settle'){
+      settlements[key] = { status:'Settled', settledDate:new Date().toISOString().slice(0,10) };
+    } else {
+      delete settlements[key];
+    }
+    saveSettlements(settlements);
+    renderSettlements();
+  });
+
+  function renderAgency(){
+    const issued = vouchers.length;
+    const redeemed = vouchers.filter(v => v.status === 'Redeemed');
+    const revenue = redeemed.reduce((sum, v) => sum + (v.amountPaid || 0), 0);
+    const commission = redeemed.reduce((sum, v) => sum + (v.commission || 0), 0);
+
+    document.getElementById('mIssued').textContent = issued;
+    document.getElementById('mRedeemed').textContent = redeemed.length;
+    document.getElementById('mRevenue').textContent = fmtMoney(revenue);
+    document.getElementById('mCommission').textContent = fmtMoney(commission);
+
+    const rows = [...vouchers].sort((a,b) => {
+      const da = a.dateRedeemed || a.dateIssued || '';
+      const db = b.dateRedeemed || b.dateIssued || '';
+      return db.localeCompare(da);
+    });
+
+    agencyTableBody.innerHTML = rows.length ? rows.map(v => `
+      <tr>
+        <td>${fmtDate(v.dateRedeemed || v.dateIssued)}</td>
+        <td>${escapeHtml(v.name)}</td>
+        <td class="id-mono">${v.id}</td>
+        <td><span class="badge ${v.status === 'Redeemed' ? 'redeemed' : 'pending'}">${v.status}</span></td>
+        <td>${fmtMoney(v.amountPaid)}</td>
+        <td>${v.commission !== null ? fmtMoney(v.commission) : '—'}</td>
+      </tr>
+    `).join('') : `<tr class="empty-row"><td colspan="6">No transactions yet.</td></tr>`;
+
+    renderSettlements();
+  }
+
+  /* ---------------- Export to Excel ---------------- */
+  const exportBtn = document.getElementById('exportBtn');
+
+  function csvEscape(value){
+    const str = value === null || value === undefined ? '' : String(value);
+    if(/[",\n]/.test(str)){
+      return '"' + str.replace(/"/g, '""') + '"';
+    }
+    return str;
+  }
+
+  function exportToExcel(){
+    const headers = [
+      'Date Issued', 'Customer Name', 'Phone', 'Email', 'Voucher ID',
+      'Status', 'Preferred Date', 'Amount Paid', 'Commission Earned', 'Date Redeemed'
+    ];
+
+    const rows = [...vouchers]
+      .sort((a, b) => (a.dateIssued || '').localeCompare(b.dateIssued || ''))
+      .map(v => [
+        v.dateIssued || '',
+        v.name || '',
+        v.phone || '',
+        v.email || '',
+        v.id || '',
+        v.status || '',
+        v.date || '',
+        v.amountPaid !== null && v.amountPaid !== undefined ? v.amountPaid.toFixed(2) : '',
+        v.commission !== null && v.commission !== undefined ? v.commission.toFixed(2) : '',
+        v.dateRedeemed || ''
+      ]);
+
+    const csvLines = [headers, ...rows].map(row => row.map(csvEscape).join(','));
+    const csvContent = '\uFEFF' + csvLines.join('\r\n'); // BOM for Excel + Unicode (Korean) support
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0,10);
+    link.href = url;
+    link.download = `juno-hair-vouchers-${stamp}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  exportBtn.addEventListener('click', exportToExcel);
+
+  /* ---------------- Init ---------------- */
+  renderSalon();
+  renderAgency();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juno Hair × Agency Partnership — Claim 20% Off</title>
+<style>
+  :root{
+    --bg:#F5F5F7;
+    --surface:#FFFFFF;
+    --surface-alt:#FBFBFD;
+    --ink:#1D1D1F;
+    --ink-soft:#6E6E73;
+    --ink-faint:#AEAEB2;
+    --line:#D2D2D7;
+    --line-soft:#E8E8ED;
+    --black:#000000;
+    --white:#FFFFFF;
+    --radius-lg:24px;
+    --radius-md:16px;
+    --radius-sm:12px;
+    --shadow:0 24px 50px -22px rgba(0,0,0,0.28);
+    --shadow-sm:0 8px 20px -12px rgba(0,0,0,0.16);
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    letter-spacing:-0.01em;
+    min-height:100vh;
+  }
+  ::selection{ background:var(--ink); color:var(--white); }
+
+  .stage{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px 20px;
+    position:relative;
+    overflow:hidden;
+  }
+  .stage::before{
+    content:'';
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 82% 8%, rgba(0,0,0,0.05), transparent 42%),
+      radial-gradient(circle at 8% 92%, rgba(0,0,0,0.04), transparent 40%);
+    pointer-events:none;
+  }
+
+  .screen{ display:none; width:100%; max-width:520px; position:relative; z-index:1; }
+  .screen.active{ display:block; animation:rise .5s cubic-bezier(.2,.85,.3,1.15); }
+  @keyframes rise{ from{ opacity:0; transform:translateY(18px); } to{ opacity:1; transform:translateY(0); } }
+
+  /* ---------- Screen 1: Promo ---------- */
+  #screen-promo{ max-width:640px; text-align:center; }
+  .promo-badge{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:8px 16px; border-radius:980px; background:var(--surface);
+    border:1px solid var(--line-soft); box-shadow:var(--shadow-sm);
+    font-size:12.5px; font-weight:600; color:var(--ink-soft);
+    letter-spacing:0.01em; margin-bottom:28px;
+  }
+  .promo-badge .dot{ width:7px; height:7px; border-radius:50%; background:var(--black); }
+
+  .promo-percent{
+    font-size:clamp(64px, 16vw, 128px); font-weight:800; line-height:0.9;
+    letter-spacing:-0.04em; color:var(--ink); margin:0 0 6px;
+  }
+  .promo-percent span{ font-size:0.38em; font-weight:700; color:var(--ink-faint); vertical-align:middle; margin-left:6px; }
+
+  .promo-title{
+    font-size:clamp(22px, 4.2vw, 30px); font-weight:700; letter-spacing:-0.02em;
+    margin:0 0 14px; line-height:1.25; color:var(--ink);
+  }
+  .promo-title em{
+    font-style:normal; border-bottom:2px solid var(--ink);
+  }
+  .promo-sub{
+    font-size:16px; color:var(--ink-soft); line-height:1.6; max-width:440px;
+    margin:0 auto 38px; font-weight:400;
+  }
+
+  .btn{
+    appearance:none; border:none; cursor:pointer; border-radius:980px;
+    padding:16px 30px; font-size:16px; font-weight:600; letter-spacing:-0.01em;
+    transition:transform .15s ease, opacity .15s ease, background .2s ease;
+  }
+  .btn:active{ transform:scale(0.98); }
+  .btn-primary{ background:var(--ink); color:var(--white); }
+  .btn-primary:hover{ opacity:0.85; }
+  .btn-block{ width:100%; }
+  .btn-ghost{ background:transparent; color:var(--ink-soft); border:1px solid var(--line); }
+  .btn-ghost:hover{ color:var(--ink); border-color:var(--ink-faint); }
+
+  .promo-foot{ margin-top:22px; font-size:12.5px; color:var(--ink-faint); }
+
+  /* ---------- Screen 2: Signup form ---------- */
+  .form-card{
+    background:var(--surface); border:1px solid var(--line-soft); border-radius:var(--radius-lg);
+    box-shadow:var(--shadow); padding:38px 34px;
+  }
+  .back-link{
+    display:inline-flex; align-items:center; gap:6px; background:none; border:none;
+    cursor:pointer; color:var(--ink-faint); font-size:13px; font-weight:600;
+    padding:0 0 20px; letter-spacing:-0.01em;
+  }
+  .back-link:hover{ color:var(--ink-soft); }
+
+  .form-eyebrow{ font-size:12px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-faint); font-weight:600; margin:0 0 8px; }
+  .form-card h2{ font-size:24px; font-weight:700; letter-spacing:-0.02em; margin:0 0 8px; }
+  .form-card .lede{ font-size:14.5px; color:var(--ink-soft); line-height:1.55; margin:0 0 28px; }
+
+  .field{ margin-bottom:18px; }
+  .field label{ display:block; font-size:13px; font-weight:600; color:var(--ink); margin-bottom:8px; }
+  .field input{
+    width:100%; padding:13px 15px; border-radius:var(--radius-sm); border:1px solid var(--line);
+    background:var(--surface-alt); font-size:15px; color:var(--ink);
+    transition:border-color .2s, box-shadow .2s, background .2s;
+  }
+  .field input:focus{ outline:none; border-color:var(--ink); box-shadow:0 0 0 4px rgba(0,0,0,0.06); background:var(--white); }
+  .field .error{ font-size:12px; color:#B3261E; margin-top:6px; display:none; }
+  .field.invalid input{ border-color:#B3261E; }
+  .field.invalid .error{ display:block; }
+
+  .form-actions{ margin-top:26px; }
+  .form-note{ margin-top:16px; font-size:12px; color:var(--ink-faint); text-align:center; line-height:1.5; }
+
+  /* ---------- Screen 3: Success ---------- */
+  #screen-success{ text-align:center; }
+  .check-badge{
+    width:64px; height:64px; border-radius:50%; background:var(--ink); color:var(--white);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 22px;
+    box-shadow:var(--shadow-sm);
+  }
+  .check-badge svg{ width:28px; height:28px; }
+
+  #screen-success h2{ font-size:26px; font-weight:700; letter-spacing:-0.02em; margin:0 0 12px; }
+  #screen-success .lede{ font-size:15px; color:var(--ink-soft); line-height:1.6; max-width:420px; margin:0 auto 30px; }
+  #screen-success .lede strong{ color:var(--ink); font-weight:600; }
+
+  /* Ticket */
+  .ticket{
+    width:100%; display:flex; border-radius:var(--radius-lg); overflow:hidden;
+    box-shadow:var(--shadow); text-align:left; margin-bottom:28px;
+  }
+  .ticket-body{ flex:1; background:var(--black); color:var(--white); padding:26px 24px; position:relative; }
+  .ticket-body .off{
+    position:absolute; top:20px; right:22px; font-size:12px; font-weight:700; letter-spacing:0.02em;
+    color:var(--black); background:var(--white); padding:6px 12px; border-radius:980px;
+  }
+  .ticket-body .label{ font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:6px; font-weight:600; }
+  .ticket-body .cust-name{ font-size:22px; margin:0 0 18px; font-weight:700; letter-spacing:-0.02em; }
+  .ticket-row{ display:flex; justify-content:space-between; margin-bottom:11px; font-size:13px; }
+  .ticket-row span:last-child{ color:var(--white); font-weight:600; }
+  .ticket-row span:first-child{ color:rgba(255,255,255,0.5); }
+  .ticket-note{ margin-top:18px; padding-top:16px; border-top:1px dashed rgba(255,255,255,0.22); font-size:12px; color:rgba(255,255,255,0.75); line-height:1.55; }
+
+  .ticket-stub{
+    width:112px; background:var(--white); position:relative; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; padding:14px 6px; border-left:2px dashed var(--line);
+  }
+  .ticket-stub::before, .ticket-stub::after{
+    content:''; position:absolute; left:-11px; width:22px; height:22px; background:var(--bg);
+    border-radius:50%; border:1px solid var(--line-soft);
+  }
+  .ticket-stub::before{ top:-11px; }
+  .ticket-stub::after{ bottom:-11px; }
+  .ticket-stub .pct{ font-size:24px; font-weight:800; color:var(--ink); line-height:1; letter-spacing:-0.02em; }
+  .ticket-stub .pct-sub{ font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-faint); margin-top:4px; text-align:center; font-weight:600; }
+  .ticket-stub .vid{
+    margin-top:14px; font-size:12px; font-weight:600; color:var(--ink-soft);
+    writing-mode:vertical-rl; letter-spacing:0.02em;
+    font-family:ui-monospace, "SF Mono", "Menlo", "Consolas", monospace;
+  }
+
+  @media (max-width:480px){
+    .form-card{ padding:30px 24px; }
+    .ticket{ flex-direction:column; }
+    .ticket-stub{ width:100%; flex-direction:row; border-left:none; border-top:2px dashed var(--line); gap:10px; padding:12px; }
+    .ticket-stub::before, .ticket-stub::after{ left:auto; top:-11px; }
+    .ticket-stub::before{ left:-11px; }
+    .ticket-stub::after{ right:-11px; left:auto; }
+    .ticket-stub .vid{ writing-mode:horizontal-tb; margin-top:0; }
+  }
+</style>
+</head>
+<body>
+
+<main class="stage">
+
+  <!-- ============ SCREEN 1: PROMO ============ -->
+  <section class="screen active" id="screen-promo">
+    <div class="promo-badge"><span class="dot"></span> Juno Hair × Agency Partnership</div>
+    <p class="promo-percent">20<span>% OFF</span></p>
+    <h1 class="promo-title">Claim Your Exclusive <em>20% Off</em> Voucher</h1>
+    <p class="promo-sub">A limited partnership offer for Juno Hair — register in under a minute and get a unique digital voucher to present on your next visit.</p>
+    <button class="btn btn-primary" id="startBtn">Participate &amp; Claim 20% Off</button>
+    <p class="promo-foot">No purchase necessary to register · One voucher per person</p>
+  </section>
+
+  <!-- ============ SCREEN 2: SIGNUP FORM ============ -->
+  <section class="screen" id="screen-form">
+    <div class="form-card">
+      <button class="back-link" id="backBtn" type="button">‹ Back</button>
+      <p class="form-eyebrow">Step 2 of 2</p>
+      <h2>Register to claim your voucher</h2>
+      <p class="lede">Enter your details below. We'll generate your voucher instantly.</p>
+
+      <form id="signupForm" novalidate>
+        <div class="field" id="field-name">
+          <label for="fullName">Full name</label>
+          <input type="text" id="fullName" placeholder="e.g. Amara Chen" autocomplete="name">
+          <div class="error">Please enter your full name.</div>
+        </div>
+        <div class="field" id="field-phone">
+          <label for="phoneNumber">Phone number</label>
+          <input type="tel" id="phoneNumber" placeholder="e.g. 010-1234-5678" autocomplete="tel">
+          <div class="error">Please enter a valid phone number.</div>
+        </div>
+        <div class="field" id="field-email">
+          <label for="emailAddress">Email address</label>
+          <input type="email" id="emailAddress" placeholder="e.g. amara@email.com" autocomplete="email">
+          <div class="error">Please enter a valid email address.</div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary btn-block">Complete Registration</button>
+        </div>
+        <p class="form-note">By registering you agree to receive your voucher by email and a follow-up from Juno Hair.</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN 3: SUCCESS ============ -->
+  <section class="screen" id="screen-success">
+    <div class="check-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </div>
+    <h2>Registration Successful!</h2>
+    <p class="lede">An email has been sent to <strong id="successEmail">you</strong> with your Voucher ID: <strong id="successVoucherIdText">—</strong>. Please present this ID during your visit to Juno Hair.</p>
+
+    <div class="ticket">
+      <div class="ticket-body">
+        <span class="off">20% OFF</span>
+        <div class="label">Digital Voucher</div>
+        <p class="cust-name" id="ticketName">—</p>
+        <div class="ticket-row"><span>Phone</span><span id="ticketPhone">—</span></div>
+        <div class="ticket-row"><span>Email</span><span id="ticketEmail">—</span></div>
+        <div class="ticket-row"><span>Issued</span><span id="ticketDate">—</span></div>
+        <div class="ticket-note">Show this voucher at Juno Hair for 20% off your service. Present the ID at checkout.</div>
+      </div>
+      <div class="ticket-stub">
+        <div class="pct">20%</div>
+        <div class="pct-sub">off</div>
+        <div class="vid" id="ticketId">—</div>
+      </div>
+    </div>
+
+    <button class="btn btn-ghost" id="againBtn" type="button">Register another guest</button>
+  </section>
+
+</main>
+
+<script>
+(function(){
+  "use strict";
+  const STORAGE_KEY = "junoHairVouchers";
+
+  /* ---------------- Shared storage helpers ---------------- */
+  function loadVouchers(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch(e){ return []; }
+  }
+  function saveVouchers(list){ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
+
+  function genVoucherId(existing){
+    let id;
+    do{
+      const num = Math.floor(100000 + Math.random() * 900000);
+      id = "JN-" + num;
+    } while(existing.some(v => v.id === id));
+    return id;
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, s => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[s]));
+  }
+
+  function fmtDate(iso){
+    const d = new Date(iso + "T00:00:00");
+    if(isNaN(d)) return iso;
+    return d.toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+  }
+
+  /* ---------------- Screen navigation ---------------- */
+  const screens = {
+    promo: document.getElementById('screen-promo'),
+    form: document.getElementById('screen-form'),
+    success: document.getElementById('screen-success')
+  };
+  function showScreen(name){
+    Object.values(screens).forEach(s => s.classList.remove('active'));
+    screens[name].classList.add('active');
+    window.scrollTo({ top:0, behavior:'smooth' });
+  }
+
+  document.getElementById('startBtn').addEventListener('click', () => showScreen('form'));
+  document.getElementById('backBtn').addEventListener('click', () => showScreen('promo'));
+  document.getElementById('againBtn').addEventListener('click', () => {
+    document.getElementById('signupForm').reset();
+    clearErrors();
+    showScreen('promo');
+  });
+
+  /* ---------------- Form validation ---------------- */
+  const nameField = document.getElementById('fullName');
+  const phoneField = document.getElementById('phoneNumber');
+  const emailField = document.getElementById('emailAddress');
+
+  function clearErrors(){
+    ['field-name','field-phone','field-email'].forEach(id => {
+      document.getElementById(id).classList.remove('invalid');
+    });
+  }
+
+  function isValidEmail(value){
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+  function isValidPhone(value){
+    return value.replace(/[^0-9]/g, '').length >= 8;
+  }
+
+  document.getElementById('signupForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    clearErrors();
+
+    const name = nameField.value.trim();
+    const phone = phoneField.value.trim();
+    const email = emailField.value.trim();
+    let valid = true;
+
+    if(!name){ document.getElementById('field-name').classList.add('invalid'); valid = false; }
+    if(!phone || !isValidPhone(phone)){ document.getElementById('field-phone').classList.add('invalid'); valid = false; }
+    if(!email || !isValidEmail(email)){ document.getElementById('field-email').classList.add('invalid'); valid = false; }
+    if(!valid) return;
+
+    const vouchers = loadVouchers();
+    const today = new Date().toISOString().slice(0,10);
+    const voucher = {
+      id: genVoucherId(vouchers),
+      name, phone, email,
+      date: today,
+      status: "Pending",
+      amountPaid: null,
+      commission: null,
+      dateIssued: today,
+      dateRedeemed: null
+    };
+    vouchers.push(voucher);
+    saveVouchers(vouchers);
+
+    document.getElementById('successEmail').textContent = email;
+    document.getElementById('successVoucherIdText').textContent = voucher.id;
+    document.getElementById('ticketName').textContent = name;
+    document.getElementById('ticketPhone').textContent = phone;
+    document.getElementById('ticketEmail').textContent = email;
+    document.getElementById('ticketDate').textContent = fmtDate(today);
+    document.getElementById('ticketId').textContent = voucher.id;
+
+    showScreen('success');
+  });
+})();
+</script>
+
+</body>
+</html>
