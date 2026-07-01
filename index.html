@@ -477,20 +477,30 @@
     return id;
   }
 
-  /* ---------------- View switching ---------------- */
+  /* ---------------- URL Parameter Role Switching ---------------- */
   const switcher = document.querySelector('.switcher');
-  switcher.addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-view]');
-    if(!btn) return;
-    switchView(btn.dataset.view);
-  });
-  function switchView(view){
-    document.querySelectorAll('.switcher button').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  if (switcher) switcher.style.display = 'none'; 
+  const modeLabel = document.querySelector('.mode-label');
+  if (modeLabel) modeLabel.style.display = 'none';
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const userRole = urlParams.get('role') || 'customer'; 
+
+  function initRoleView(role) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.getElementById('view-' + view).classList.add('active');
-    if(view === 'salon') renderSalon();
-    if(view === 'agency') renderAgency();
+    
+    if (role === 'salon') {
+      document.getElementById('view-salon').classList.add('active');
+      renderSalon();
+    } else if (role === 'agency') {
+      document.getElementById('view-agency').classList.add('active');
+      renderAgency();
+    } else {
+      document.getElementById('view-customer').classList.add('active');
+    }
   }
+
+  initRoleView(userRole);
 
   /* ---------------- Customer view ---------------- */
   const claimForm = document.getElementById('claimForm');
